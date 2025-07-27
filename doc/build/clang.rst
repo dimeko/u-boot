@@ -35,6 +35,8 @@ using clang:
     make HOSTCC=clang rpi_2_defconfig
     make HOSTCC=clang CROSS_COMPILE=arm-linux-gnueabi- CC=clang -j8
 
+**NOTE:** we can use GCC_TOOLCHAIN_DIR to override the gnu toolchain directory
+
 It can also be used to compile sandbox:
 
 .. code-block:: bash

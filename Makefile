@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0+
 
 VERSION = 2025
-PATCHLEVEL = 07
+PATCHLEVEL = 10
 SUBLEVEL =
-EXTRAVERSION =
+EXTRAVERSION = -rc1
 NAME =
 
 # *DOCUMENTATION*
@@ -1578,7 +1578,6 @@ u-boot-nodtb.bin: u-boot FORCE
 	$(BOARD_SIZE_CHECK)
 
 u-boot.ldr:	u-boot
-		$(CREATE_LDR_ENV)
 		$(LDR) -T $(CONFIG_LDR_CPU) -c $@ $< $(LDR_FLAGS)
 		$(BOARD_SIZE_CHECK)
 
@@ -1895,7 +1894,7 @@ u-boot-payload.lds: $(LDSCRIPT_EFI) FORCE
 quiet_cmd_u-boot_payload ?= LD      $@
       cmd_u-boot_payload ?= $(LD) $(LDFLAGS_EFI_PAYLOAD) -o $@ \
       -T u-boot-payload.lds arch/x86/cpu/call32.o \
-      lib/efi/efi.o lib/efi/efi_stub.o u-boot.bin.o \
+      lib/efi_client/efi.o lib/efi_client/efi_stub.o u-boot.bin.o \
       $(addprefix arch/$(ARCH)/lib/,$(EFISTUB))
 
 u-boot-payload: u-boot.bin.o u-boot-payload.lds FORCE
@@ -2134,6 +2133,11 @@ $(filter-out tools, $(u-boot-dirs)): tools
 # The "examples" conditionally depend on U-Boot (say, when USE_PRIVATE_LIBGCC
 # is "yes"), so compile examples after U-Boot is compiled.
 examples: $(filter-out examples, $(u-boot-dirs))
+
+ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
+# lib/efi_loader apps depend on arch/$(ARCH)/lib for lib.a
+lib: $(filter arch/$(ARCH)/lib, $(u-boot-dirs))
+endif
 
 # The setlocalversion script comes from linux and expects a
 # KERNELVERSION variable in the environment for figuring out which
